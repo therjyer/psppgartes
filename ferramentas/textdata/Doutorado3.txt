@@ -1,0 +1,6 @@
+<option value="">Selecione o(a) Orientador(a)</option>
+<option value="141">Ana Cláudia Melo</option>
+<option value="68">Áureo DeFreitas</option>
+<option value="138">Márcia Bittencourt</option>	
+<option value="105">Rosangela Marques Brito</option>
+<option value="136">Savio Stoco</option>

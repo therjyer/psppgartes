@@ -1,0 +1,7 @@
+<option value="">Selecione o(a) Orientador(a)</option>
+<option value="109">Ana Claudia Leão</option>
+<option value="142">Francisco Smith</option>
+<option value="100">Ivone Xavier</option>
+<option value="127">Liliam Cristina Barros</option>
+<option value="124">Maria dos Remédios</option>
+<option value="80">Sonia Maria Moraes Chada</option>

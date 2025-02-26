@@ -1,0 +1,44 @@
+
+#pages {
+    padding: 2px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+
+}
+#pages ul {
+	list-style-type: none;
+	align: center;
+}
+#pages li {
+	float: left;
+	display: inline;
+	margin: 0 5px 0 0;
+	display: block;
+	align: center;
+}
+#pages li a {
+	color: #87888c;
+	padding: 4px;
+	border: 1px solid #ddd;
+	text-decoration: none;
+
+}
+#pages li a:hover {
+	color: #87888c;
+	background: #f8f8f8;
+	border: 1px solid #87888c;
+}
+#pages li.nolink {
+	color: #CCC;
+	border: 1px solid #F3F3F3;
+	padding: 4px;
+}
+#pages li a.current {
+	color: #87888c;
+	background: #f8f8f8;
+	border: 1px solid #87888c;
+
+
+}

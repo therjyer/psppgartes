@@ -1,0 +1,5 @@
+<option value="">Selecione o(a) Orientador(a)</option>
+<option value="68">Áureo Deo DeFreitas Júnior</option>
+<option value="125">Jose Afonso Medeiros Souza</option>
+<option value="111">Jose Denis Bezerra</option>
+<option value="70">Orlando Franco Maneschy</option>

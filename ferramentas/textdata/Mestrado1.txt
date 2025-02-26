@@ -1,0 +1,6 @@
+<option value="">Selecione o(a) Orientador(a)</option>
+<option value="144">Elder dos Santos Oliveira Junior</option>
+<option value="128">Larissa Latif Placido Sare</option>
+<option value="145">Mayrla Andrade Ferreira</option>
+<option value="140">Thales Branche Paes de Mendonça</option>
+<option value="71">Valzeli Figueira Sampaio</option>

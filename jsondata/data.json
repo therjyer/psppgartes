@@ -1,0 +1,12 @@
+{
+    "mestrado": {
+        "Poéticas e processos de atuação em artes": ["Prof. Dr. Alex Ferreira Damasceno", "Prof. Dr. Alexandre Romariz Sequeira", "Prof.ª Dr.ª Andrea Bentes Flores","Prof.ª Dr.ª Graziela Ribeiro Baena","Prof.ª Dr.ª Hosana Celeste Oliveira","Prof.ª Dr.ª Mayrla Andrade Ferreira","Prof. Dr. Orlando Franco Maneschy","Prof. Dr. Thales Branche Paes de Mendonça","Prof.ª Dr.ª Valzeli Figueira Sampaio"],
+        "Teorias e Interfaces Epistêmicas em Artes": ["Prof.ª Dr.ª Ana Cláudia do Amaral Leão","Prof. Dr. Francisco Pereira Smith Júnior","Prof.ª Dr.ª Hosana Celeste Oliveira","Prof.ª Dr.ª Ivone Maria Xavier de Amorim Almeida","Prof.ª Dr.ª Liliam Cristina Barros Cohen","Prof.ª Dr.ª Maria dos Remédios de Brito"],
+        "Memórias, Histórias e Educação em Artes": ["Prof. Dr. Alex Ferreira Damasceno","Prof.ª Dr.ª Ana Claudia da Cruz Melo","Prof. Dr. Áureo Deo de Freitas Junior","Prof. Dr. José Denis de Oliveira Bezerra","Prof. Dr. José Afonso Medeiros Souza","Prof.ª Dr.ª Luzia Gomes Ferreira","Prof. Dr. Luiz Adriano Daminello","Prof.ª Dr.ª Márcia Mariana Bittencourt Brito","Prof. Dr. Orlando Franco Maneschy","Prof. Dr. Sávio Luís Stoco"]
+    },
+    "doutorado": {
+        "Poéticas e processos de atuação em artes": ["Prof. Dr. Alex Ferreira Damasceno","Prof.ª Dr.ª Hosana Celeste Oliveira","Prof.ª Dr.ª Mayrla Andrade Ferreira dos Santos","Prof. Dr. Thales Branche Paes de Mendonça","Prof.ª Dr.ª Valzeli Figueira Sampaio"],
+        "Teorias e Interfaces Epistêmicas em Artes": ["Prof.ª Dr.ª Ana Cláudia do Amaral Leão","Prof. Dr. Francisco Pereira Smith Junior","Prof.ª Dr.ª Hosana Celeste Oliveira","Prof.ª Dr.ª Liliam Cristina Barros Cohen","Prof.ª Dr.ª Maria dos Remédios de Brito"],
+        "Memórias, Histórias e Educação em Artes": ["Prof.ª Dr.ª Ana Claudia da Cruz Melo","Prof. Dr. Áureo Deo de Freitas Júnior","Prof. Dr. José Denis de Oliveira Bezerra","Prof.ª Dr.ª Márcia Mariana Bittencourt Brito","Prof. Dr. Sávio Luís Stoco"]
+    }
+}

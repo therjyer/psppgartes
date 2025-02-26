@@ -1,0 +1,4 @@
+<option value="">Selecione o(a) Orientador(a)</option>
+<option value="128">Larissa Latif Placido Saré</option>
+<option value="140">Thales de Mendonça</option>
+<option value="71">Valzeli Sampaio</option>

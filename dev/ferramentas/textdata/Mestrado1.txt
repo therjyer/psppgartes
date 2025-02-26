@@ -1,0 +1,7 @@
+<option value="">Selecione o(a) Orientador(a)</option>
+<option value="135">Alexandre Sequeira</option>
+<option value="67">Ana Flavia Mendes Sapucahy</option>
+<option value="129">Iara Regina da Silva Souza</option>
+<option value="70">Orlando Maneschy</option>
+<option value="136">Savio Stoco</option>
+<option value="71">Valzeli Figueira Sampaio</option>

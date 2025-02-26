@@ -1,0 +1,7 @@
+<option value="">Selecione o(a) Orientador(a)</option>
+<option value="141">Ana Cláudia da Cruz Melo</option>
+<option value="68">Áureo Deo De Freitas Júnior</option>
+<option value="111">José Denis Bezerra</option>
+<option value="138">Marcia Mariana Bittencourt Brito</option>
+<option value="105">Rosangela Marques Brito</option>
+<option value="136">Sávio Luis Stoco</option>
