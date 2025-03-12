@@ -11,6 +11,7 @@
     <script src="../ferramentas/js/view.js" defer></script>
     <script src="../ferramentas/js/calendar.js" defer></script>
     <script src="../ferramentas/js/valida_cpf_cnpj.js" defer></script>
+    <script src="../ferramentas/js/tipoInscricao.js" defer></script>
 </head>
 <body>
     <?php
@@ -44,36 +45,49 @@
             }
         });
 
-        /**
-         * Carregamento de JSON e configuração de dropdowns
-         */
+        <?php
+        session_start();
+        $tipoInscrito = $_SESSION['tipoinscrito'] ?? ''; 
+        $nivel = ($tipoInscrito == "1") ? "mestrado" : (($tipoInscrito == "2") ? "doutorado" : "");
+        ?>
         let dadosPesquisa = {};
-        $.getJSON('../ferramentas/jsondata/data.json', function (data) {
-            dadosPesquisa = data;
-        }).fail(function () {
-            console.error('Erro ao carregar JSON');
+
+        $(document).ready(function () {
+            $.getJSON('../ferramentas/jsondata/data.json', function (data) {
+                dadosPesquisa = data;
+                let nivel = "<?php echo $nivel; ?>"; // Pegando o nível do PHP
+
+                if (nivel && dadosPesquisa[nivel]) {
+                    carregarLinhasDePesquisa(nivel);
+                }
+            }).fail(function () {
+                console.error('Erro ao carregar JSON');
+            });
         });
 
-        $('#nivel').change(function () {
-            let nivel = $(this).val();
+        function carregarLinhasDePesquisa(nivel) {
             let $linhaPesquisa = $('#linhaPesquisa').empty().append('<option value="">Selecione a linha de pesquisa</option>');
-            if (nivel && dadosPesquisa[nivel]) {
-                $.each(dadosPesquisa[nivel], function (linha) {
-                    $linhaPesquisa.append(`<option value="${linha}">${linha}</option>`);
-                });
-                $linhaPesquisa.prop('disabled', false);
-            }
-        });
+            
+            $.each(dadosPesquisa[nivel], function (linha) {
+                $linhaPesquisa.append(`<option value="${linha}">${linha}</option>`);
+            });
+
+            $linhaPesquisa.prop('disabled', false); // Habilita a caixa de seleção
+
+            // Se já tiver uma linha de pesquisa selecionada, carregar os orientadores
+            $linhaPesquisa.change();
+        }
 
         $('#linhaPesquisa').change(function () {
-            let nivel = $('#nivel').val();
+            let nivel = "<?php echo $nivel; ?>"; 
             let linhaSelecionada = $(this).val();
             let $orientador = $('#orientador').empty().append('<option value="">Selecione o orientador</option>');
-            if (linhaSelecionada && dadosPesquisa[nivel][linhaSelecionada]) {
+            
+            if (linhaSelecionada && dadosPesquisa[nivel] && dadosPesquisa[nivel][linhaSelecionada]) {
                 $.each(dadosPesquisa[nivel][linhaSelecionada], function (_, orientador) {
                     $orientador.append(`<option value="${orientador}">${orientador}</option>`);
                 });
-                $orientador.prop('disabled', false);
+                $orientador.prop('disabled', false); // Habilita a caixa de orientadores
             }
         });
 
@@ -106,6 +120,7 @@
             { id: '#fileAutodeclaracaoDeTrans', mensagem: '#TRANS_DOWN' },
             { id: '#fileAnexoCvLattes', mensagem: '#ANEXO_LATTES' },
             { id: '#fileLaudoMedico', mensagem: '#LAUDO_DOWN' },
+            { id: '#arquivoIndigena', mensagem: '#ANUENCIA_DOWN' },
             { id: '#fileContraCheque', mensagem: '#CHEQUE_DOWN' },
             { id: '#arquivoDiploma', mensagem: '#DIPLOMA_DOWN' },
             { id: '#arquivoHistorico', mensagem: '#HISTORICO_DOWN' },
@@ -154,59 +169,39 @@
                     </p>
                     <p><b>Todos os documentos deverão ser enviados em formato PDF com, no máximo, 2Mb. Cada arquivo enviado deverá ser nomeado de forma clara, incluindo o nome do/a candidato/a e o tipo (por exemplo: o PDF contendo o RG de um candidato chamado Fulano de Tal deverá ser designado "RG_Fulano_de_Tal.pdf")". Evitar a utilização de acentuação gráfica ao nomear o arquivo.
                         </b></p>
-                </div>						
-                <ul>
-                    <li id="liNivel">
-                        <label class="description" for="optNivel">Selecione o curso:<span class="required">*</span></label>
-                        <div>
-                            <select id="nivel">
-                                <option value="">Curso</option>
-                                <option value="mestrado">Mestrado</option>
-                                <option value="doutorado">Doutorado</option>
-                            </select>
-                        </div> <p class="guidelines" id="guide_31"><small>Informe qual curso você quer concorrer</small></p> 
-                    </li>
-                    
-                    <li id="liAnexoCvLattes">
-                        <label class="description" for="fileAnexoCvLattes">Anexar currículo lattes (Apenas PDF)<span class="required">*</span></label>
-                        <div>
-                            <input id="fileAnexoCvLattes" name="Anexos[]" class="element file" type="file"/> 
-                            <p id="ANEXO_LATTES" style="color:red; font-size: 12px; font-weight: bold;"></p>
-                        </div> <p class="guidelines" id="guide_15"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>
-                    <li id="liLinkCvLattes" >
-                        <label class="description" for="txtLinkCvLattes">Endereço para acessar CV (plataforma lattes CNPq):<span class="required">*</span>
-                        </label>
-                        <div>
-                            <input id="txtLinkCvLattes" name="txtLinkCvLattes" class="element text medium"  required type="text" maxlength="255"  value="http://"/> 
-                        </div><p class="guidelines" id="guide_1"><small>informar o link válido para o seu CV</small></p> 
-                    </li>
-                    <li id="liNome" >
+                </div>
+                <div class="row">
+                    <h3><br>Informações Pessoais:<br></h3>
+                    <div id="liNome" >
                         <label class="description" for="txtNome">Nome Completo:<span class="required">*</span>
                         </label>
                         <div>
                             <input id="txtNome" name="txtNome" class="element text large"  required type="text" maxlength="255"  value=""/> 
-                        </div> 
-                    </li>
-                    <li id="liNomeSocial" >
+                        </div>
+                    </div><br>
+                    
+                    <div id="liNomeSocial" >
                         <label class="description" for="txtNomeSocial">Nome Social:</label>
                         <div>
                             <input id="txtNomeSocial" name="txtNomeSocial" class="element text large"   type="text" maxlength="255"  value=""/> 
-                        </div> 
-                    </li>
-                    <li id="liNacionalidade" >
+                        </div>
+                    </div><br>
+                    
+                    <div id="liNacionalidade" >
                         <label class="description" for="txtNacionalidade">Nacionalidade:<span class="required">*</span></label>
                         <div>
                             <input id="txtNacionalidade" name="txtNacionalidade" class="element text medium"  required type="text" maxlength="255" value=""/> 
-                        </div> 
-                    </li>		
-                    <li id="liNaturalidade" >
+                        </div>
+                    </div><br>
+
+                    <div id="liNaturalidade" >
                         <label class="description" for="txtNaturalidade">Naturalidade:<span class="required">*</span></label>
                         <div>
                             <input id="txtNaturalidade" name="txtNaturalidade" class="element text medium"  required type="text" maxlength="255" value=""/> 
-                        </div> 
-                    </li>		
-                    <li id="lidtNascimento" >
+                        </div>
+                    </div><br>
+
+                    <div id="lidtNascimento" >
                         <label class="description" for="dtNascimento_1">Data de Nascimento:<span class="required">*</span>
                         </label>
                         <span>
@@ -218,12 +213,11 @@
                             <label for="dtNascimento_2">MM</label>
                         </span>
                         <span>
-                            <input id="dtNascimento_3" name="dtNascimento_3" class="element text" size="4" maxlength="4" min="1920" max="2024"   required value="" type="number">
+                            <input id="dtNascimento_3" name="dtNascimento_3" class="element text" size="4" maxlength="4" min="1900" max="2100"   required value="" type="number">
                             <label for="dtNascimento_3">AAAA</label>
                         </span>
-
                         <span id="calendar_5">
-                            <img id="cal_img_5" class="datepicker" src="images/calendar.gif" alt="Pick a date.">	
+                            <img id="cal_img_5" class="datepicker" src="images/calendar.gif" alt="Pick a date.">
                         </span>
                         <script type="text/javascript">
                             Calendar.setup({
@@ -235,21 +229,23 @@
                                 onSelect: selectEuropeDate
                             });
                         </script>
+                    </div><br>
 
-                    </li>		
-                    <li id="liRG" >
+                    <div id="liRG" >
                         <label class="description" for="txtNumRG">RG:<span class="required">*</span></label>
                         <div>
                             <input id="txtNumRG" name="txtNumRG" class="element text small"  required type="text" maxlength="255" value=""/> 
                         </div><p class="guidelines" id="guide_6"><small>Informar o número do seu documento de identificação</small></p> 
-                    </li>		
-                    <li id="liEmissorRG" >
+                    </div><br>
+
+                    <div id="liEmissorRG" >
                         <label class="description" for="txtEmissorRg">Órgão Expeditor:<span class="required">*</span></label>
                         <div>
                             <input id="txtEmissorRg" name="txtEmissorRg" class="element text small"  required type="text" maxlength="255" value=""/> 
                         </div><p class="guidelines" id="guide_7"><small>Informar o Órgão emissor do seu documento de identidade</small></p> 
-                    </li>		
-                    <li id="lidtRg" >
+                    </div><br>
+
+                    <div id="lidtRg" >
                         <label class="description" for="dtRg_1">Data de Emissão:<span class="required">*</span></label>
                         <span>
                             <input id="dtRg_1" name="dtRg_1" class="element text" size="2" maxlength="2" min="1" max="31"  required value="" type="number"> /
@@ -263,7 +259,6 @@
                             <input id="dtRg_3" name="dtRg_3" class="element text" size="4" maxlength="4" min="1920" max="2024"   required value="" type="number">
                             <label for="dtRg_3">AAAA</label>
                         </span>
-
                         <span id="calendar_8">
                             <img id="cal_img_8" class="datepicker" src="images/calendar.gif" alt="Pick a date.">	
                         </span>
@@ -278,23 +273,42 @@
                             });
                         </script>
                         <p class="guidelines" id="guide_8"><small>Informar a data da emissão do seu documento de identificação</small></p> 
-                    </li>		
-                    <li id="liCPF" >
+                    </div><br>
+
+                    <div id="liArquivoRG" >
+                        <label class="description" for="arquivoRg">Anexo do RG (Conforme subitem 3.2.3):<span class="required">*</span></label>
+                        <div>
+                            <input id="arquivoRg" name="Anexos[]" required class="element file" type="file"/> 
+                            <p id="RGA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
+                        </div> <p class="guidelines" id="guide_25"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p>
+                    </div><br>
+
+                    <div id="liCPF" >
                         <label class="description" for="txtCPF">CPF:<span class="required">*</span></label>
                         <div>
                             <input id="txtCPF" name="txtCPF" class="cpf_cnpj"  required type="text" maxlength="11" value=""/> 
                             <p id="CPF_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p> 
                             
                         </div><p class="guidelines" id="guide_10"><small>Digite somente números sem "." ou "-"</small></p> 
-                    </li>		
-                    <li id="liVisto" >
+                    </div><br>
+
+                    <div id="liArquivoCPF" >
+                        <label class="description" for="arquivoCpf">Anexo do CPF (Conforme subitem 3.2.3):<span class="required">*</span></label>
+                        <div>
+                            <input id="arquivoCpf" name="Anexos[]" required class="element file" type="file"/> 
+                            <p id="CPFA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
+                        </div> <p class="guidelines" id="guide_26"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
+                    </div><br>
+
+                    <div id="liVisto" >
                         <label class="description" for="txtVisto">Visto Permanente (preencher apenas se for estrangeiro):</label>
                         <div>
                             <input id="txtVisto" name="txtVisto" class="element text medium"   type="text" maxlength="255" value=""/> 
-                        </div> 
-                    </li>
+                        </div>
+                    </div><br>
+
                     <div id ="dtVisto" style="display: none;" >
-                        <li id="lidtInicioVigenciaVisto" >
+                        <div id="lidtInicioVigenciaVisto" >
                             <label class="description" for="dtInicioVigenciaVisto_1">Início Período de Vigência:</label>
                             <span>
                                 <input id="dtInicioVigenciaVisto_1" name="dtInicioVigenciaVisto_1" class="element text" size="2" maxlength="2" min="1" max="31" value="" type="number"> /
@@ -308,7 +322,6 @@
                                 <input id="dtInicioVigenciaVisto_3" name="dtInicioVigenciaVisto_3" class="element text" size="4" maxlength="4" min="1920" max="2050" value="" type="number">
                                 <label for="dtInicioVigenciaVisto_3">AAAA</label>
                             </span>
-
                             <span id="calendar_22">
                                 <img id="cal_img_22" class="datepicker" src="images/calendar.gif" alt="Pick a date.">	
                             </span>
@@ -322,9 +335,8 @@
                                     onSelect: selectEuropeDate
                                 });
                             </script>
-
-                        </li>		
-                        <li id="lidtTerminoVigenciaVisto" >
+                        </div><br>
+                        <div id="lidtTerminoVigenciaVisto" >
                             <label class="description" for="dtTerminoVigenciaVisto_1">Término Periodo de Vigência:</label>
                             <span>
                                 <input id="dtTerminoVigenciaVisto_1" name="dtTerminoVigenciaVisto_1" class="element text" size="2" maxlength="2" min="1" max="31"  value="" type="number"> /
@@ -338,7 +350,6 @@
                                 <input id="dtTerminoVigenciaVisto_3" name="dtTerminoVigenciaVisto_3" class="element text" size="4" maxlength="4" min="1920" max="2050"  value="" type="number">
                                 <label for="dtTerminoVigenciaVisto_3">AAAA</label>
                             </span>
-
                             <span id="calendar_23">
                                 <img id="cal_img_23" class="datepicker" src="images/calendar.gif" alt="Pick a date.">	
                             </span>
@@ -352,109 +363,127 @@
                                     onSelect: selectEuropeDate
                                 });
                             </script>
+                        </div>
+                    </div><br>
 
-                        </li>
-                    </div>
-                    <li id="liEndereço" >
+                    <div id="liEndereço" >
                         <label class="description" for="txtEndereco">Endereço:<span class="required">*</span></label>
                         <div>
-                            <textarea id="txtEndereco" name="txtEndereco" required class="element textarea medium"></textarea> 
-                        </div> 
-                    </li>		
-                    <li id="liTelefone" >
+                            <textarea id="txtEndereco" name="txtEndereco" required class="element textarea medium"></textarea>
+                        </div>
+                    </div><br>
+
+                    <div id="liTelefone" >
                         <label class="description" for="txtTelefone">Telefone:</label>
                         <div>
-                            <input id="txtTelefone" name="txtTelefone" class="element text medium"  type="text" maxlength="255" value=""/> 
-                        </div><p class="guidelines" id="guide_11"><small>informar no formato (##) #####-####</small></p> 
-                    </li>		
-                    <li id="liCelular" >
+                            <input id="txtTelefone" name="txtTelefone" class="element text medium"  type="text" maxlength="255" value=""/>
+                        </div><p class="guidelines" id="guide_11"><small>informar no formato (##) #####-####</small></p>
+                    </div><br>
+
+                    <div id="liCelular" >
                         <label class="description" for="txtCelular">Celular:<span class="required">*</span></label>
                         <div>
-                            <input id="txtCelular" name="txtCelular" class="element text medium"  required type="text" maxlength="255" value=""/> 
-                        </div><p class="guidelines" id="guide_12"><small>informar no formato (##) #####-####</small></p> 
-                    </li>		
-                    <li id="liEmail" >
+                            <input id="txtCelular" name="txtCelular" class="element text medium"  required type="text" maxlength="255" value=""/>
+                        </div><p class="guidelines" id="guide_12"><small>informar no formato (##) #####-####</small></p>
+                    </div><br>
+
+                    <div id="liEmail" >
                         <label class="description" for="txtEmail">E-mail:<span class="required">*</span></label>
                         <div>
-                            <input id="txtEmail" name="txtEmail" class="element text medium"  required type="text" maxlength="255" value=""/> 
-                        </div><p class="guidelines" id="guide_13"><small>Informe um e-mail válido para contato</small></p> 
-                    </li>		
-                    <li id="libolAtendimentoEspecial" >
+                            <input id="txtEmail" name="txtEmail" class="element text medium"  required type="text" maxlength="255" value=""/>
+                        </div><p class="guidelines" id="guide_13"><small>Informe um e-mail válido para contato</small></p>
+                    </div><br>
+
+                    <div id="libolAtendimentoEspecial" >
                         <label class="description" for="optAtendimentoEspecial">Necessita de Atendimento Especial para a realização da prova?<span class="required">*</span>
                         </label>
                         <div>
-                            <select class="element select medium" required value=''  id="optAtendimentoEspecial" name="optAtendimentoEspecial"> 
-                                <option value="" ></option>
-                                <option value="0" >Não</option>
-                                <option value="1" >Sim</option>                                
+                            <select class="element select medium" required value=''  id="optAtendimentoEspecial" name="optAtendimentoEspecial">
+                                <option value="Nao" >Não</option>
+                                <option value="Sim" >Sim</option>
                             </select>
-                        </div> 
-                    <li id="litxtEspecial2" style="display: none;">
+                    </div><br>
+
+                    <div id="litxtEspecial2" style="display: none;">
                         <label class="description" for="txtEspecial">Especificar atendimento especial:</label>
                         <div>
                             <input id="txtEspecial" name="txtEspecial" class="element text large"  type="text" maxlength="255" value=""/> 
                         </div><p class="guidelines" id="guide_13"><small>Especificar qual o atendimento especial</small></p> 
-                    </li>
-                    <li id="liAutodeclaraçãoDeEtnia" >
-                        <label class="description" for="fileAutodeclaraçãoDeEtnia">Autodeclaração de etnia (Item 2.4 - Anexo 06)</label>
+                    </div>
+                
+                    <h3><br>Autodeclarações e Documentos:<br></h3>
+                    
+                    <div id="liAutodeclaraçãoDeEtnia" >
+                        <label class="description" for="fileAutodeclaracaoDeEtnia">Autodeclaração de etnia (Item 2.4 - Anexo 06)</label>
                         <div>
-                            <input id="fileAutodeclaraçãoDeEtnia" name="Anexos[]" class="element file" type="file"/> 
+                            <input id="fileAutodeclaracaoDeEtnia" name="Anexos[]" class="element file" type="file"/> 
                             <p id="ETNIA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
-                        </div> <p class="guidelines" id="guide_15"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>
-                    <li id="liAutodeclaraçãoDeTrans" >
-                        <label class="description" for="fileAutodeclaraçãoDeTrans">Autodeclaração de pessoas trans (Item 2.6 - Anexo 07)</label>
+                        </div> <p class="guidelines" id="guide_17"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
+                    </div><br>
+
+                    <div id="liAutodeclaraçãoDeTrans" >
+                        <label class="description" for="fileAutodeclaracaoDeTrans">Autodeclaração de pessoas trans (Item 2.6 - Anexo 07)</label>
                         <div>
-                            <input id="fileAutodeclaraçãoDeTrans" name="Anexos[]" class="element file" type="file"/> 
+                            <input id="fileAutodeclaracaoDeTrans" name="Anexos[]" class="element file" type="file"/> 
                             <p id="TRANS_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
-                        </div> <p class="guidelines" id="guide_15"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>
-                    <li id="liLaudoMedico" >
+                        </div> <p class="guidelines" id="guide_19"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
+                    </div><br>
+
+                    <div id="liLaudoMedico" >
                         <label class="description" for="fileLaudoMedico">Laudo Médico/Relatório Médico (item 2.5 do Edital)</label>
                         <div>
                             <input id="fileLaudoMedico" name="Anexos[]" class="element file" type="file"/> 
                             <p id="LAUDO_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
                         </div> <p class="guidelines" id="guide_41"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>
-                   <li id="liArquivoIndigena" >
-                        <label class="description" for="arquivoIndigena">Autodeclaração de Identidade indígena e Declaração de Pertencimento Étnico(Item 2.7 do EDITAL)</label>
+                    </div><br>
+
+                    <div id="liArquivoIndigena" >
+                        <label class="description" for="arquivoIndigena">Autodeclaração de Identidade indígena e Declaração de Pertencimento Étnico (Item 2.7 do EDITAL)</label>
                         <div>
                             <input id="arquivoIndigena" name="Anexos[]"  class="element file" type="file"/> 
                             <p id="ANUENCIA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
                         </div> <p class="guidelines" id="guide_29"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>
-                    <li id="liContraCheque" >
+                    </div><br>
+
+                    <div id="liContraCheque" >
                         <label class="description" for="fileContraCheque">Anexar o último contracheque ou declaração funcional - Vaga PADT (item 2.8 do Edital)</label>
                         <div>
                             <input id="fileContraCheque" name="Anexos[]" class="element file" type="file"/> 
                             <p id="CHEQUE_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
                         </div> <p class="guidelines" id="guide_43"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>
-                    <li id="liNomeEnsinoSuperior" >
+                    </div>
+
+                    <h3><br>Formação Acadêmica:<br></h3>
+                    
+                    <div id="liNomeEnsinoSuperior" >
                         <label class="description" for="txtNomeEnsinoSuperior">Instituição de Ensino Superior:<span class="required">*</span></label>
                         <div>
                             <input id="txtNomeEnsinoSuperior" name="txtNomeEnsinoSuperior" class="element text large"  required type="text" maxlength="200" value=""/> 
                         </div><p class="guidelines" id="guide_16"><small>Informe nome por extenso</small></p> 
-                    </li>
-                    <li id="liSiglaEnsinoSuperior" >
-                        <label class="SiglaEnsinoSuperior" for="txtSiglaEnsinoSuperior">Sigla da Instituição:<span class="required">*</span></label>
+                    </div><br>
+
+                    <div id="liSiglaEnsinoSuperior" >
+                        <label class="description" for="txtSiglaEnsinoSuperior">Sigla da Instituição:<span class="required">*</span></label>
                         <div>
                             <input id="txtSiglaEnsinoSuperior" name="txtSiglaEnsinoSuperior" class="element text small"  required type="text" maxlength="20" value=""/> 
-                        </div> 
-                    </li>		
-                    <li id="liCurso" >
+                        </div>
+                    </div><br>
+                    
+                    <div id="liCurso" >
                         <label class="description" for="txtCurso">Curso:<span class="required">*</span></label>
                         <div>
                             <input id="txtCurso" name="txtCurso" class="element text large"  required type="text" maxlength="255" value=""/> 
-                        </div> 
-                    </li>		
-                    <li id="liTitulo" >
+                        </div>
+                    </div><br>
+
+                    <div id="liTitulo" >
                         <label class="description" for="txtTitulo">Título obtido:<span class="required">*</span></label>
                         <div>
                             <input id="txtTitulo" name="txtTitulo" class="element text medium"  required type="text" maxlength="255" value=""/> 
-                        </div> 
-                    </li>		
-                    <li id="lidtInicioCurso" >
+                        </div>
+                    </div><br>
+
+                    <div id="lidtInicioCurso" >
                         <label class="description" for="dtInicioCurso_1">Início do curso:<span class="required">*</span></label>
                         <span>
                             <input id="dtInicioCurso_1" name="dtInicioCurso_1" class="element text" size="2" maxlength="2" min="1" max="31"  required value="" type="number"> /
@@ -468,7 +497,6 @@
                             <input id="dtInicioCurso_3" name="dtInicioCurso_3" class="element text" size="4" maxlength="4" min="1920" max="2024"   required value="" type="number">
                             <label for="dtInicioCurso_3">AAAA</label>
                         </span>
-
                         <span id="calendar_20">
                             <img id="cal_img_20" class="datepicker" src="images/calendar.gif" alt="Pick a date.">	
                         </span>
@@ -482,9 +510,9 @@
                                 onSelect: selectEuropeDate
                             });
                         </script>
+                    </div><br>
 
-                    </li>		
-                    <li id="lidtTerminoCurso" >
+                    <div id="lidtTerminoCurso" >
                         <label class="description" for="dtTerminoCurso_1">Término do curso:</label>
                         <span>
                             <input id="dtTerminoCurso_1" name="dtTerminoCurso_1" class="element text" size="2" maxlength="2" min="1" max="31"  required value="" type="number"> /
@@ -498,7 +526,6 @@
                             <input id="dtTerminoCurso_3" name="dtTerminoCurso_3" class="element text" size="4" maxlength="4" min="1920" max="2024"   required value="" type="number">
                             <label for="dtTerminoCurso_3">AAAA</label>
                         </span>
-
                         <span id="calendar_21">
                             <img id="cal_img_21" class="datepicker" src="images/calendar.gif" alt="Pick a date.">	
                         </span>
@@ -512,119 +539,131 @@
                                 onSelect: selectEuropeDate
                             });
                         </script>
-
-                    </li>		
-                    <li id="liTituloProjeto" >
-                        <label class="description" for="txtTituloProjeto">Título do Projeto Proposto:<span class="required">*</span></label>
-                        <div>
-                            <textarea id="txtTituloProjeto" name="txtTituloProjeto" required class="element textarea medium"></textarea> 
-                        </div> 
-                    </li>		
-                    <li id="lioptCampo" >
-                        <label class="description" for="optCampo">Selecione o Campo de Atuação:<span class="required">*</span></label>
-                        <div>
-                            <select class="element select medium" required id="optCampo" name="optCampo"> 
-                                <option value="" selected="selected"></option>
-                                <option value="1" >Teatro</option>
-                                <option value="2" >Música</option>
-                                <option value="3" >Dança</option>
-                                <option value="4" >Artes Visuais</option>
-                                <option value="5" >Cinema</option>
-                            </select>
-                        </div> 
-                    </li>
-                    <li id="liLinhaPesquisa">
-                        <label class="description" for="optLinhaPesquisa">Selecione a linha de pesquisa:<span class="required">*</span></label>
-                        <div>
-                            <select id="linhaPesquisa" disabled>
-                                <option value="">Linha de pesquisa</option>
-                            </select>
-                        </div> <p class="guidelines" id="guide_31"><small>Informe qual a linha de pesquisa você quer concorrer</small></p> 
-                    </li>
-                    <li id="liOrientador">
-                        <label class="description" for="optNivel">Selecione o orientador:<span class="required">*</span></label>
-                        <div>
-                            <select id="orientador" disabled>
-                                <option value="">Orientador</option>
-                            </select>
-                        </div> <p class="guidelines" id="guide_31"><small>Informe qual orientador pretendido</small></p> 
-                    </li>
-                    <li id="liArquivoDiploma" >
+                    </div><br>
+                    
+                    <div id="liArquivoDiploma" >
                         <label class="description" for="arquivoDiploma">Diploma/Declaração Conclusão/Declaração Concluinte (Conforme subitem 3.2.2 do Edital):<span class="required">*</span></label>
                         <div>
                             <input id="arquivoDiploma" name="Anexos[]" required class="element file" type="file"/> 
                             <p id="DIPLOMA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
                         </div> <p class="guidelines" id="guide_23"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>		
-                    <li id="liArquivoHistorico" >
+                    </div><br>
+
+                    <div id="liArquivoHistorico" >
                         <label class="description" for="arquivoHistorico">Histórico (Conforme subitem 3.2.2 do Edital):<span class="required">*</span></label>
                         <div>
                             <input id="arquivoHistorico" name="Anexos[]" required class="element file" type="file"/> 
                             <p id="HISTORICO_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
                         </div> <p class="guidelines" id="guide_24"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>		
-                    <li id="liArquivoRG" >
-                        <label class="description" for="arquivoRg">RG (Conforme subitem 3.2.3):<span class="required">*</span></label>
+                    </div>
+
+                    <h3><br>Projeto Proposto:<br></h3>
+
+                    <div id="liTituloProjeto" >
+                        <label class="description" for="txtTituloProjeto">Título do Projeto Proposto:<span class="required">*</span></label>
                         <div>
-                            <input id="arquivoRg" name="Anexos[]" required class="element file" type="file"/> 
-                            <p id="RGA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
-                        </div> <p class="guidelines" id="guide_25"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>		
-                    <li id="liArquivoCPF" >
-                        <label class="description" for="arquivoCpf">CPF (Conforme subitem 3.2.3):<span class="required">*</span></label>
+                            <textarea id="txtTituloProjeto" name="txtTituloProjeto" required class="element textarea medium"></textarea> 
+                        </div>
+                    </div><br>
+
+                    <div id="lioptCampo" >
+                        <label class="description" for="optCampo">Selecione o Campo de Atuação:<span class="required">*</span></label>
                         <div>
-                            <input id="arquivoCpf" name="Anexos[]" required class="element file" type="file"/> 
-                            <p id="CPFA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
-                        </div> <p class="guidelines" id="guide_26"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>		
-                    <li id="liArquivoGRU" >
+                            <select class="element select medium" required id="optCampo" name="optCampo"> 
+                                <option value="" selected="selected"></option>
+                                <option value="Teatro" >Teatro</option>
+                                <option value="Musica" >Música</option>
+                                <option value="Danca" >Dança</option>
+                                <option value="ArtesVisuais" >Artes Visuais</option>
+                                <option value="Cinema" >Cinema</option>
+                            </select>
+                        </div>
+                    </div><br>
+
+                    <div id="liLinhaPesquisa">
+                        <label class="description" for="linhaPesquisa">Selecione a linha de pesquisa:<span class="required">*</span></label>
+                        <div>
+                            <select id="linhaPesquisa" name="linhaPesquisa">
+                                <option value="">Linha de pesquisa</option>
+                            </select>
+                        </div>
+                        <p class="guidelines" id="guide_31"><small>Informe qual a linha de pesquisa você quer concorrer</small></p> 
+                    </div><br>
+
+                    <div id="liOrientador">
+                        <label class="description" for="orientador">Selecione o orientador:<span class="required">*</span></label>
+                        <div>
+                            <select id="orientador" name="orientador">
+                                <option value="">Orientador</option>
+                            </select>
+                        </div>
+                        <p class="guidelines" id="guide_31"><small>Informe qual orientador pretendido</small></p> 
+                    </div>
+
+                    <h3><br>Documentos Adicionais:<br></h3>
+                    <div id="liArquivoGRU" >
                         <label class="description" for="arquivoGru">GRU e Comprovante de Pagamento ou Declaração de isenção (Conforme subitem 3.2.4 - Anexo 2):<span class="required">*</span></label>
                         <div>
                             <input id="arquivoGru" name="Anexos[]" required class="element file" type="file"/> 
                             <p id="GRU_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
                         </div> <p class="guidelines" id="guide_27"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>		
-                    <li id="liArquivoConcordancia" >
+                    </div><br>
+
+                    <div id="liArquivoConcordancia" >
                         <label class="description" for="arquivoConcordancia">Declaração de Concordância (Conforme subitem 3.2.5):<span class="required">*</span></label>
                         <div>
                             <input id="arquivoConcordancia" name="Anexos[]" required class="element file" type="file"/> 
                             <p id="CONCORDANCIA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
                         </div> <p class="guidelines" id="guide_28"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
-                    </li>
-                    <li id="liArquivoProficiencia" >
+                    </div><br>
+
+                    <div id="liArquivoProficiencia" >
                         <label class="description" for="arquivoProficiencia">Certificado de proficiência em língua estrangeira (Conforme subitem 3.2.6 e item 8.4)</label>
                         <div>
                             <input id="arquivoProficiencia" name="Anexos[]" class="element file" type="file"/> 
                             <p id="PROFICIENCIA_DOWN" style="color:red; font-size: 12px; font-weight: bold;"></p>
                         </div> <p class="guidelines" id="guide_30"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb, sendo que será aceito apenas 1 certificado para o mestrado e 2 para o doutorado</small></p> 
-                    </li>
-                    <li id="liVinculoEmpregaticio" >
+                    </div>
+
+                    <h3><br>Vínculo Empregatício:<br></h3>
+
+                    <div id="liVinculoEmpregaticio" >
                         <label class="description" for="optVinculoEmpregaticio">Vínculo Empregatício:<span class="required">*</span></label>
                         <div>
                             <select class="element select medium" required id="optVinculoEmpregaticio" name="optVinculoEmpregaticio"> 
-                                <option value="" ></option>
-                                <option value="0" >Não</option>
-                                <option value="1" >Sim</option>                                
+                                <option value="Nao" >Não</option>
+                                <option value="Sim" >Sim</option>
                             </select>
                         </div> <p class="guidelines" id="guide_31"><small>Informe se você possui ou não vínculo empregatício</small></p> 
-                    </li>
-                    <li id="litxtNomeInstituicao" style="display: none;">
+                    </div><br>
+
+                    <div id="litxtNomeInstituicao" style="display: none;">
                         <label class="description" for="txtNomeInstituicao">Instituição / Empresa:</label>
                         <div>
                             <input id="txtNomeInstituicao" name="txtNomeInstituicao" class="element text large" type="text" maxlength="200" value=""/> 
                         </div><p class="guidelines" id="guide_16"><small>Informe nome da Instituição / Empresa que está vinculado atualmente</small></p> 
-                    </li>
+                    </div>
 
-                    <li class="buttons">
-                        <input type="hidden" name="form_id" value="97971" />
+                    <h3><br>Anexos:<br></h3>
 
-                        <input id="saveForm" class="button_text" type="submit" name="submit" value="Enviar solicitação de inscrição" />
-                    </li>
-                </ul>
-            </form>	
-            <!--div id="footer">
-                Generated by <a href="http://www.phpform.org">pForm</a>
-            </div-->
+                    <div id="liAnexoCvLattes">
+                        <label class="description" for="fileAnexoCvLattes">Anexar currículo lattes (Apenas PDF)<span class="required">*</span></label>
+                        <div>
+                            <input id="fileAnexoCvLattes" name="Anexos[]" class="element file" type="file"/> 
+                            <p id="ANEXO_LATTES" style="color:red; font-size: 12px; font-weight: bold;"></p>
+                        </div> <p class="guidelines" id="guide_15"><small>Obrigatório que esteja no formato PDF e tamanho máximo de 2Mb</small></p> 
+                    </div><br>
+
+                    <div id="liLinkCvLattes" >
+                        <label class="description" for="txtLinkCvLattes">Endereço para acessar CV (plataforma lattes CNPq):<span class="required">*</span>
+                        </label>
+                        <div>
+                            <input id="txtLinkCvLattes" name="txtLinkCvLattes" class="element text medium"  required type="text" maxlength="255"  value="http://"/> 
+                        </div><p class="guidelines" id="guide_1"><small>informar o link válido para o seu CV</small></p>
+                    </div><br>
+
+                <br><button>Enviar solicitação de inscrição</button>
+            </form>
         </div>
         <img id="bottom" src="images/bottom.png" alt="">
     </body>

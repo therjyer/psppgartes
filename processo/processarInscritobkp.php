@@ -25,7 +25,7 @@ function formatarData($dia, $mes, $ano) {
 
 // Função para verificar e retornar o valor de uma variável POST
 function obterPost($campo) {
-    return filter_input(INPUT_POST, $campo, FILTER_DEFAULT);
+    return filter_input(INPUT_POST, $campo, FILTER_SANITIZE_STRING);
 }
 
 // Mapear dados do formulário para variáveis com o mesmo nome dos campos da tabela DB_INSCRITOS
@@ -43,7 +43,11 @@ $txtSiglaEnsinoSuperior = obterPost("txtSiglaEnsinoSuperior");
 $txtCurso = obterPost("txtCurso");
 $txtTitulo = obterPost("txtTitulo");
 $txtTituloProjeto = obterPost("txtTituloProjeto");
-$txtOrientador1 = obterPost("orientador");
+$txtOrientador1 = obterPost("txtOrientador1");
+$txtNomeInstituicao = mysqli_real_escape_string($con, $txtNomeInstituicao);
+$txtNomeInstituicao = !empty($txtNomeInstituicao) ? "'$txtNomeInstituicao'" : "NULL";
+$txtEspecial = isset($_POST["txtEspecial"]) ? mysqli_real_escape_string($con, $_POST["txtEspecial"]) : NULL;
+$txtEspecial = !empty($txtEspecial) ? "'$txtEspecial'" : "NULL";
 
 // Tratando datas de nascimento
 $dia = obterPost("dtNascimento_1");
@@ -68,18 +72,18 @@ $dtRg = formatarData(obterPost("dtRg_1"), obterPost("dtRg_2"), obterPost("dtRg_3
 $txtCPF = obterPost("txtCPF");
 $txtVisto = obterPost("txtVisto");
 
-if ($txtVisto == "") { 
-    $dtInicioVigenciaVisto = "0000-00-00";
-    $dtTerminoVigenciaVisto = "0000-00-00";
+if ($txtVisto == "") {
+    $dtInicioVigenciaVisto = "";
+    $dtTerminoVigenciaVisto = "";
 } else {
     // Tratando datas do visto
     $dtInicioVigenciaVisto = formatarData(obterPost("dtInicioVigenciaVisto_1"), obterPost("dtInicioVigenciaVisto_2"), obterPost("dtInicioVigenciaVisto_3"));
     $dtTerminoVigenciaVisto = formatarData(obterPost("dtTerminoVigenciaVisto_1"), obterPost("dtTerminoVigenciaVisto_2"), obterPost("dtTerminoVigenciaVisto_3"));
 }
 
+
 $bolAtendimentoEspecial = obterPost("optAtendimentoEspecial");
-$bolAtendimentoEspecial = ($bolAtendimentoEspecial == 'Sim') ? 1 : 0;
-$txtEspecial = obterPost("txtEspecial");
+$bolAtendimentoEspecial = $bolAtendimentoEspecial == '1' ? 1 : 0;
 
 // Tratando datas de curso
 $dtInicioCurso = formatarData(obterPost("dtInicioCurso_1"), obterPost("dtInicioCurso_2"), obterPost("dtInicioCurso_3"));
@@ -87,11 +91,8 @@ $dtTerminoCurso = formatarData(obterPost("dtTerminoCurso_1"), obterPost("dtTermi
 
 $optCampo = obterPost("optCampo");
 $optLinhaPesquisa = obterPost("optLinhaPesquisa");
-
 $bolVinculoEmpregaticio = obterPost("optVinculoEmpregaticio");
-$bolVinculoEmpregaticio = ($bolVinculoEmpregaticio === 'Sim') ? 1 : 0;
-
-$txtNomeInstituicao = obterPost("txtNomeInstituicao");
+$bolVinculoEmpregaticio = $bolVinculoEmpregaticio == '1' ? 1 : 0;
 
 $optTipoProcesso = $tipoinscrito;
 
@@ -192,7 +193,7 @@ $mail->Debugoutput = 'html';
                             `optLinhaPesquisa` VARCHAR(255),
                             `txtOrientador1` VARCHAR(255),
                             `bolVinculoEmpregaticio` BOOLEAN,
-                            `txtNomeInstituicao` VARCHAR(255),
+                            `txtInstituicao` VARCHAR(255),
                             `optTipoProcesso` INT,
                             `numInscricao` VARCHAR(50)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
@@ -279,14 +280,14 @@ $mail->Debugoutput = 'html';
                         `txtEndereco`, `txtTelefone`, `txtCelular`, `txtEmail`, `bolAtendimentoEspecial`, `txtEspecial`,
                         `txtNomeEnsinoSuperior`, `txtSiglaEnsinoSuperior`, `txtCurso`, `txtTitulo`,
                         `dtInicioCurso`, `dtTerminoCurso`, `txtTituloProjeto`, `optCampo`, `optLinhaPesquisa`,
-                        `txtOrientador1`, `bolVinculoEmpregaticio`, `txtNomeInstituicao`, `optTipoProcesso`
+                        `txtOrientador1`, `bolVinculoEmpregaticio`, `txtInstituicao`, `optTipoProcesso`
                     ) VALUES (
                         '$txtNome', '$txtNomeSocial', '$txtLinkCvLattes', '$txtNacionalidade', '$txtNaturalidade', '$dtNascimento',
                         '$txtNumRG', '$txtEmissorRg', '$txtCPF', '$txtVisto', '$dtInicioVigenciaVisto', '$dtTerminoVigenciaVisto',
                         '$txtEndereco', '$txtTelefone', '$txtCelular', '$txtEmail', $bolAtendimentoEspecial, '$txtEspecial',
                         '$txtNomeEnsinoSuperior', '$txtSiglaEnsinoSuperior', '$txtCurso', '$txtTitulo',
                         '$dtInicioCurso', '$dtTerminoCurso', '$txtTituloProjeto', $optCampo, '$optLinhaPesquisa',
-                        '$txtOrientador1', $bolVinculoEmpregaticio, '$txtNomeInstituicao', $optTipoProcesso
+                        '$txtOrientador1', $bolVinculoEmpregaticio, '$txtInstituicao', $optTipoProcesso
                     )";
 
                     $result = mysqli_query($conn, $inserirInscrito);
@@ -353,99 +354,77 @@ $mail->Debugoutput = 'html';
                         }
                     }
 
-                    // Função para formatar a resposta booleana
-                    function formatarBooleano($valor)
+                    // Função para formatar a resposta do vínculo empregatício
+                    function formatarVinculoEmpregaticio($valor)
                     {
-                        return ($valor == 1) ? 'Sim' : 'Não';
-                    }
-
-                    function sanitizarAnexosTexto($html) {
-                        $html = preg_replace('/<br\s*\/?>/i', "\n", $html);
-                        
-                        $html = preg_replace_callback(
-                            '/<a [^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/i',
-                            function($matches) {
-                                return $matches[2] . ' (' . $matches[1] . ')';
-                            },
-                            $html
-                        );
-                        
-                        return trim($html);
+                        return $valor == 0 ? 'Não' : 'Sim';
                     }
 
                     // Função para gerar o corpo do e-mail para o PPGARTES
                     function gerarCorpoEmailPPGARTES($dados)
                     {
-                        // Formatar campos específicos
-                        $campo = htmlspecialchars($dados['optCampo']);
-                        $atendimentoEspecial = formatarBooleano($dados['bolAtendimentoEspecial']);
-                        $vinculoEmpregaticio = formatarBooleano($dados['bolVinculoEmpregaticio']);
-
-                        // Construção do corpo do e-mail
+                        // Gerar o corpo do e-mail em formato HTML
+                        $campo = formatarCampo($dados['optCampo']);
+                        $atendimentoEspecial = formatarVinculoEmpregaticio($dados['bolAtendimentoEspecial']);
+                        $vinculoEmpregaticio = formatarVinculoEmpregaticio($dados['bolVinculoEmpregaticio']);
+                        
                         $textoEmail = "<p>Novo Cadastro no Sistema do Processo Seletivo do PPGARTES - 2025.</p>";
-                        $textoEmail .= "<p>Dados da inscrição</p><table border='1'>";
+                        $textoEmail .= "<p>Dados da inscrição<br/></p><table border='1'>";
 
-                        // Gerar linhas da tabela, excluindo campos já formatados
-                        $camposExcluidos = ['optCampo', 'bolAtendimentoEspecial', 'bolVinculoEmpregaticio', 'listalinks'];
-                        $linhasTabela = array_map(function ($campo, $valor) use ($camposExcluidos) {
-                            if (in_array($campo, $camposExcluidos)) return '';
-                            return "<tr><td>" . htmlspecialchars($campo) . "</td><td>" . htmlspecialchars($valor) . "</td></tr>";
-                        }, array_keys($dados), $dados);
+                        foreach ($dados as $campo => $valor) {
+                            // Excluir campos desnecessários
+                            if (in_array($campo, ['optCampo', 'bolAtendimentoEspecial', 'bolVinculoEmpregaticio'])) continue;
 
-                        $textoEmail .= implode('', array_filter($linhasTabela)); // Junta todas as linhas filtradas
-
-                        // Adicionando os campos formatados
-                        $textoEmail .= "<tr><td>Vínculo Empregatício</td><td>{$vinculoEmpregaticio}</td></tr>";
-
-                        // Se houver nome da instituição, adicioná-lo ao e-mail
-                        if (!empty($dados['txtNomeInstituicao'])) {
-                            $textoEmail .= "<tr><td>Nome da Instituição</td><td>" . htmlspecialchars($dados['txtNomeInstituicao']) . "</td></tr>";
+                            // Criar uma linha da tabela para cada campo
+                            $textoEmail .= "<tr><td>{$campo}</td><td>{$valor}</td></tr>";
                         }
+
+                        $textoEmail .= "<tr><td>Campo</td><td>{$campo}</td></tr>";
+                        $textoEmail .= "<tr><td>Vinculo Empregatício</td><td>{$vinculoEmpregaticio}</td></tr>";
+                        $textoEmail .= "</table><br/>" . $dados['listalinks'];
 
                         return $textoEmail;
                     }
 
                     // Enviar e-mail para o PPGARTES
                     $dadosPPGARTES = [
-                        'Tipo de título' => $tipoTitulo,
-                        'Matrícula' => $Matricula,
+                        'tipoTitulo' => $tipoTitulo,
+                        'Matricula' => $Matricula,
                         'Nome' => $txtNome,
-                        'Nome Social' => $txtNomeSocial,
-                        'Link do CV Lattes' => $txtLinkCvLattes,
+                        'NomeSocial' => $txtNomeSocial,
+                        'CvLattes' => $txtLinkCvLattes,
                         'Nacionalidade' => $txtNacionalidade,
                         'Naturalidade' => $txtNaturalidade,
-                        'Data de nascimento' => $dtNascimento,
-                        'Número do RG' => $txtNumRG,
-                        'Emissor do RG' => $txtEmissorRg,
+                        'DataNascimento' => $dtNascimento,
+                        'NumRG' => $txtNumRG,
+                        'EmissorRg' => $txtEmissorRg,
                         'CPF' => $txtCPF,
-                        'Visto estrangeiro' => $txtVisto,
-                        'Data de início do visto' => $dtInicioVigenciaVisto,
-                        'Data de término do visto' => $dtTerminoVigenciaVisto,
-                        'Endereço' => $txtEndereco,
+                        'Visto' => $txtVisto,
+                        'DataInicioVisto' => $dtInicioVigenciaVisto,
+                        'DataTerminoVisto' => $dtTerminoVigenciaVisto,
+                        'Endereco' => $txtEndereco,
                         'Telefone' => $txtTelefone,
                         'Celular' => $txtCelular,
                         'Email' => $txtEmail,
-                        'Atendimento especial' => $bolAtendimentoEspecial,
-                        'Qual atendimento' => $txtEspecial,
-                        'Nome do Ensino Superior' => $txtNomeEnsinoSuperior,
-                        'Sigla do Ensino Superior' => $txtSiglaEnsinoSuperior,
+                        'AtendimentoEspecial' => $txtAtendimentoEspecial,
+                        'QualAtendimentoEspecial' => $txtEspecial,
+                        'NomeEnsinoSuperior' => $txtNomeEnsinoSuperior,
+                        'SiglaEnsinoSuperior' => $txtSiglaEnsinoSuperior,
                         'Curso' => $txtCurso,
-                        'Título' => $txtTitulo,
-                        'Data de início do curso' => $dtInicioCurso,
-                        'Data de término do curso' => $dtTerminoCurso,
-                        'Título do projeto' => $txtTituloProjeto,
-                        'Campo' => $optCampo,
-                        'Linha de pesquisa' => $optLinhaPesquisa,
-                        'Orientador' => $txtOrientador1,
-                        'Vinculo empregatício' => $bolVinculoEmpregaticio,
-                        'Nome da instituição' => $txtNomeInstituicao,
-                        'Anexos' => sanitizarAnexosTexto($listalinks),
+                        'Titulo' => $txtTitulo,
+                        'DtInicioCurso' => $dtInicioCurso,
+                        'DtTerminoCurso' => $dtTerminoCurso,
+                        'TituloProjeto' => $txtTituloProjeto,
+                        'Campo' => $txtcampo,
+                        'LinhaPesquisa' => $optLinhaPesquisa,
+                        'Orientador' => orientador($txtOrientador1),
+                        'VinculoEmpregatício' => $txtVinculoEmpregatici,
+                        'NomeInstituicao' => $txtNomeInstituicao,
                     ];
-
 
                     // Preparar o corpo do e-mail
                     $corpoPPGARTES = gerarCorpoEmailPPGARTES($dadosPPGARTES);
-                    $assuntoPPGARTES = "PSPPGARTES2025 " . $tipoTitulo . " - " . $txtNome;
+                    $assuntoPPGARTES = "Processo Seletivo PPGArtes 2025 " . $tipoTitulo . " - " . $txtNome;
 
                     // Destinatários
                     $destinatariosPPGARTES = ($tipoinscrito == 1) ? ["psppgartes.mestrado@gmail.com"] : ["psppgartesdoutorado2@gmail.com"];
@@ -453,22 +432,22 @@ $mail->Debugoutput = 'html';
 
                     // Enviar e-mail
                     if (!configurarEmail($mail, $assuntoPPGARTES, $corpoPPGARTES, $destinatariosPPGARTES, $bccPPGARTES)) {
-                        echo "Erro";
+                        echo "Erro no envio do E-mail para o PSPPGARTES";
                     } else {
-                        echo "<br />";
+                        echo "E-mail enviado para o PSPPGARTES<br />";
                     }
 
                     // Enviar e-mail para o inscrito
                     $tempoFormatado = (new DateTime())->format('d-m-Y H:i:s');
-                    $assuntoInscrito = "PSPPGARTES 2025 - Confirmação de Inscrição de " . $txtNome;
+                    $assuntoInscrito = "Processo Seletivo PPGArtes 2025 - Confirmação de Inscrição de " . $txtNome;
                     $corpoInscrito = "<p>Sua inscrição no Processo Seletivo do PPGARTES foi realizada em $tempoFormatado</p><p>Acompanhe o processo seletivo em www.ppgartes.propesp.ufpa.br<br/></p>";
                     $destinatariosInscrito = [$txtEmail];
                     $bccInscrito = ['thiago.correa@icen.ufpa.br' => 'Thiago Castro'];
 
                     if (!configurarEmail($mail, $assuntoInscrito, $corpoInscrito, $destinatariosInscrito, $bccInscrito)) {
-                        echo "Erro";
+                        echo "Erro no envio do E-mail para $txtEmail";
                     } else {
-                        echo "<br />";
+                        echo "E-mail de confirmação enviado para $txtEmail<br />";
                     }
                 ?>
 

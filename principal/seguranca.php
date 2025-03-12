@@ -20,7 +20,7 @@ $_SG['servidor'] = 'localhost';    // Servidor MySQL
 $_SG['usuario'] = 'psppgartes';          // Usu�rio MySQL php6
 // local $_SG['usuario'] = 'u613711144_psppgartes';          // Usu�rio MySQL
 // 2022 ufpa 
-$_SG['senha'] = 'u7HQ9j8KjI';                // Senha phpmyadmin UFPA
+$_SG['senha'] = '1RNYK]lTMJapb24s';                // Senha phpmyadmin UFPA
 // local $_SG['senha'] = ':2!2g6G#';                // Senha phpmyadmin 4gestor.net
 // local $_SG['banco'] = 'u613711144_psppgartes';            // Banco de dados MySQL
 // 2022 ufpa
