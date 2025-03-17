@@ -142,6 +142,33 @@
             }
         });
 
+        function validarFormulario() {
+            var txtVisto = document.getElementById("txtVisto").value;
+            var dtInicioVigenciaVisto_1 = document.getElementById("dtInicioVigenciaVisto_1").value;
+            var dtInicioVigenciaVisto_2 = document.getElementById("dtInicioVigenciaVisto_2").value;
+            var dtInicioVigenciaVisto_3 = document.getElementById("dtInicioVigenciaVisto_3").value;
+            var dtTerminoVigenciaVisto_1 = document.getElementById("dtTerminoVigenciaVisto_1").value;
+            var dtTerminoVigenciaVisto_2 = document.getElementById("dtTerminoVigenciaVisto_2").value;
+            var dtTerminoVigenciaVisto_3 = document.getElementById("dtTerminoVigenciaVisto_3").value;
+
+            // Verificando se o campo Visto foi preenchido
+            if (txtVisto !== "") {
+                // Se o campo Visto foi preenchido, os campos de data devem ser obrigatórios
+                if (dtInicioVigenciaVisto_1 === "" || dtInicioVigenciaVisto_2 === "" || dtInicioVigenciaVisto_3 === "" ||
+                    dtTerminoVigenciaVisto_1 === "" || dtTerminoVigenciaVisto_2 === "" || dtTerminoVigenciaVisto_3 === "") {
+                    alert("Por favor, preencha todas as datas do visto.");
+                    return false; // Impede o envio do formulário
+                }
+            }
+
+            return true; // Permite o envio do formulário se tudo estiver correto
+        }
+
+        // Adicionando a função de validação no evento de envio do formulário
+        document.querySelector("form").onsubmit = function() {
+            return validarFormulario();
+        };
+
         /**
          * Função genérica para validação de arquivos
          */
@@ -306,7 +333,7 @@
                             <label for="dtRg_2">MM</label>
                         </span>
                         <span>
-                            <input id="dtRg_3" name="dtRg_3" class="element text" size="4" maxlength="4" min="1920" max="2024"   required value="" type="number">
+                            <input id="dtRg_3" name="dtRg_3" class="element text" size="4" maxlength="4" min="1920" max="2030"   required value="" type="number">
                             <label for="dtRg_3">AAAA</label>
                         </span>
                         <span id="calendar_8">
@@ -545,7 +572,7 @@
                             <label for="dtInicioCurso_2">MM</label>
                         </span>
                         <span>
-                            <input id="dtInicioCurso_3" name="dtInicioCurso_3" class="element text" size="4" maxlength="4" min="1920" max="2024"   required value="" type="number">
+                            <input id="dtInicioCurso_3" name="dtInicioCurso_3" class="element text" size="4" maxlength="4" min="1920" max="2030"   required value="" type="number">
                             <label for="dtInicioCurso_3">AAAA</label>
                         </span>
                         <span id="calendar_20">
@@ -574,7 +601,7 @@
                             <label for="dtTerminoCurso_2">MM</label>
                         </span>
                         <span>
-                            <input id="dtTerminoCurso_3" name="dtTerminoCurso_3" class="element text" size="4" maxlength="4" min="1920" max="2024"   required value="" type="number">
+                            <input id="dtTerminoCurso_3" name="dtTerminoCurso_3" class="element text" size="4" maxlength="4" min="1920" max="2030"   required value="" type="number">
                             <label for="dtTerminoCurso_3">AAAA</label>
                         </span>
                         <span id="calendar_21">
@@ -653,6 +680,41 @@
                         </div>
                         <p class="guidelines" id="guide_51"><small>Informe qual orientador pretendido</small></p>
                     </div><br>
+
+                    <script type="text/javascript">
+                        // Função para validar o formulário
+                        function validarFormulario(event) {
+                            var optCampo = document.getElementById("optCampo").value;
+                            var drpLinha = document.getElementById("drpLinha").value;
+                            var orientador = document.getElementById("orientador").value;
+
+                            // Verificando se o campo de "Campo de Atuação" foi selecionado
+                            if (optCampo === "0") {
+                                alert("Por favor, selecione um campo de atuação.");
+                                event.preventDefault(); // Impede o envio do formulário
+                                return false;
+                            }
+
+                            // Verificando se a "Linha de Pesquisa" foi selecionada
+                            if (drpLinha === "0") {
+                                alert("Por favor, selecione uma linha de pesquisa.");
+                                event.preventDefault(); // Impede o envio do formulário
+                                return false;
+                            }
+
+                            // Verificando se o "Orientador" foi selecionado
+                            if (orientador === "0") {
+                                alert("Por favor, selecione um orientador.");
+                                event.preventDefault(); // Impede o envio do formulário
+                                return false;
+                            }
+
+                            return true; // Permite o envio do formulário se tudo estiver correto
+                        }
+
+                        // Adicionando a função de validação no evento de envio do formulário
+                        document.querySelector("form").addEventListener("submit", validarFormulario);
+                    </script>
 
                     <h3><br>Documentos Adicionais:<br></h3>
                     <div id="liArquivoGRU" >
