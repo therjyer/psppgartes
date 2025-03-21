@@ -1,7 +1,7 @@
 <?php
-include("seguranca.php"); // Inclui o arquivo com o sistema de segurança
+include("seguranca.php"); // Inclui o arquivo com o sistema de seguranï¿½a
 // include("dbconnect.inc.php");
-protegePagina(); // Chama a função que protege a página
+//protegePagina(); // Chama a funï¿½ï¿½o que protege a pï¿½gina
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -12,7 +12,7 @@ protegePagina(); // Chama a função que protege a página
         <?php include "head.html"; ?>
         <script type="text/javascript" language="javascript">
             function confirmaExclusao(aURL) {
-                if (confirm('Você tem certeza que deseja tornar este usuário inativo?')) {
+                if (confirm('VocÃª tem certeza que deseja tornar este usuÃ¡rio inativo?')) {
                     location.href = aURL;
                 }
             }
@@ -38,7 +38,7 @@ protegePagina(); // Chama a função que protege a página
 
 
                 <form id = "logout" name="logout" method="post" action="logout.php">
-                    <!--?php echo "Olá <b>".$_SESSION['usuarioNome']."</b>, seja bem vindo."; ?-->
+                    <!--?php echo "Olï¿½ <b>".$_SESSION['usuarioNome']."</b>, seja bem vindo."; ?-->
                     <?php echo "<b>[" . $_SESSION['usuarioNome'] . "]</b>"; ?>     
                     <input align="right" class='botao' type="submit" value="Sair" />
                 </form>
@@ -220,7 +220,7 @@ protegePagina(); // Chama a função que protege a página
                                                 <a href='professores.php'>Professores</a>
                                             </li>
                                             <li>
-                                                <a href='secretarios.php'>Secretários(as)</a>
+                                                <a href='secretarios.php'>SecretÃ¡rios(as)</a>
                                             </li>                                    
 
                                         </ul>
@@ -237,7 +237,7 @@ protegePagina(); // Chama a função que protege a página
                 <!-- End Tab Container -->
                 <footer>
                     <p>
-                        Sistema de Avaliação PSPPGARTES
+                        Sistema de AvaliaÃ§Ã£o PSPPGARTES
                     </p>
                 </footer>
             </div><!-- #main -->
